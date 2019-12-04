@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Slide in Scroll</title>
+  </head>
+  <body>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+      }
+
+      body {
+        background-color: #abe078;
+        background-image: url("data:image/svg+xml,%3Csvg width='42' height='44' viewBox='0 0 42 44' xmlns='http://www.w3.org/2000/svg'%3E%3Cg id='Page-1' fill='none' fill-rule='evenodd'%3E%3Cg id='brick-wall' fill='%237d7533' fill-opacity='0.4'%3E%3Cpath d='M0 0h42v44H0V0zm1 1h40v20H1V1zM0 23h20v20H0V23zm22 0h20v20H22V23z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+
+      .images-container {
+        padding: 0;
+        margin: 100px auto;
+        width: 60vw;
+        min-width: 300px;
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        box-shadow: 0px 10px 10px 1px rgba(0, 0, 0, 0.3);
+        background-color: #b6df90;
+      }
+
+      .images-container > li > img {
+        object-fit: cover;
+        max-width: calc(100% - 30px);
+        display: block;
+        margin: 10px auto;
+        border: 10px solid #ffe0ae;
+        transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+        opacity: 0;
+      }
+
+      .images-container > li {
+        width: 100%;
+      }
+
+      @media (min-width: 400px) {
+        .images-container > li {
+          width: 50%;
+        }
+
+        .slide-right {
+          transform: translateX(-50%);
+        }
+
+        .slide-left {
+          transform: translateX(50%);
+        }
+      }
+
+      .slide-left.active,
+      .slide-right.active {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    </style>
+
+    <ul class="images-container"></ul>
+
+    <script>
+      const container = document.querySelector('.images-container')
+      let imgs = []
+      for (let i = 106; i < 116; i++) {
+        imgs.push(`
+      <li>
+        <img class="${
+          i % 2 == 0 ? 'slide-right' : 'slide-left'
+        }" src="https://picsum.photos/id/${i}/400/400" alt="img-${i}">
+      </li>
+      `)
+      }
+
+      container.innerHTML = imgs.join('')
+
+      function debounce(func, wait = 20, immediate = true) {
+        let timeout
+        return function() {
+          let context = this,
+            args = arguments
+          let later = function() {
+            timeout = null
+            if (!immediate) func.apply(context, args)
+          }
+          let callNow = immediate && !timeout
+          clearTimeout(timeout)
+          timeout = setTimeout(later, wait)
+          if (callNow) func.apply(context, args)
+        }
+      }
+
+      const images = document.querySelectorAll('img')
+
+      function checkSlide(e) {
+        images.forEach(img => {
+          const slideInAt = window.scrollY + window.innerHeight - img.height / 2
+          const imageBottom = img.offsetTop + img.height
+          const isHalfShown = slideInAt > img.offsetTop
+          const isNotScrolledPast = window.scrollY < imageBottom
+          if (isHalfShown && isNotScrolledPast) {
+            img.classList.add('active')
+          } else {
+            img.classList.remove('active')
+          }
+        })
+      }
+
+      window.addEventListener('scroll', debounce(checkSlide))
+    </script>
+  </body>
+</html>
